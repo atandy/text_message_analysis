@@ -53,7 +53,7 @@ def  getTokensAndPOS():
         get the tokens and the parts of speech of each word'''
     tokens = nltk.word_tokenize(ALL_MESSAGES_STR)
     #TODO: fix count of tokens.
-    pos_tags = nltk.pos_tag(tokens[:10000])
+    pos_tags = nltk.pos_tag(tokens)
 
     return tokens, pos_tags
 
