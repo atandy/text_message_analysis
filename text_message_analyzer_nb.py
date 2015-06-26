@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[10]:
 
 import sqlite3
 import pandas as pd
@@ -40,7 +40,7 @@ def getMessageDF():
 message_df = getMessageDF()
 
 
-# In[9]:
+# In[11]:
 
 ## WRANGLE THE DATA AND CATEGORIZE IT ##
 
@@ -53,7 +53,7 @@ def  getTokensAndPOS():
         get the tokens and the parts of speech of each word'''
     tokens = nltk.word_tokenize(ALL_MESSAGES_STR)
     #TODO: fix count of tokens.
-    pos_tags = nltk.pos_tag(tokens)
+    pos_tags = nltk.pos_tag(tokens[:1000])
 
     return tokens, pos_tags
 
@@ -80,11 +80,10 @@ master_words_tuple = getMasterWords()
 ## CREATE MASTER WORDS DATAFRAME. ##
 # create a dataframe with the master_words_tuple. the tuple included the frequency it was used.
 master_words_set_df = pd.DataFrame(master_words_tuple,columns=['word','count_times'])
-master_words_set_df['bad_word'] = master_words_set_df.word.apply(lambda x: 1 if x in bad_words_df.word.tolist() else 0)
 master_words_set_df['pct_of_total'] = (master_words_set_df.count_times / len(master_words_set_df)) * 100
 
 
-# In[10]:
+# In[12]:
 
 ### GENERAL DATASET INFO ###
 print "Total text messages in dataset: {}".format(len(message_df.text))
@@ -92,7 +91,7 @@ print "Total words before filtering: {}".format(len(pos_tags))
 print "Total words after filtering: {}".format(len(master_words_tuple))
 
 
-# In[11]:
+# In[13]:
 
 ### BAD WORDS ANALYSIS ###
 with open('bad_words.txt', 'r') as f:
@@ -107,21 +106,22 @@ for entry in master_words_tuple:
 # bad words dataframe 
 bad_words_df = pd.DataFrame(used_bad_words, columns=['word','count_times'])
 bad_words_df['pct_of_total'] = (bad_words_df.count_times / len(pos_tags)) * 100
+master_words_set_df['bad_word'] = master_words_set_df.word.apply(lambda x: 1 if x in bad_words_df.word.tolist() else 0)
 
 
-# In[1]:
+# In[14]:
 
 # plot top 20 bad words. uncomment this !
 #bad_words_df[:20].plot(kind='barh', x='word',figsize=(10,5))
 
 
-# In[2]:
+# In[15]:
 
 # slice the master dataframe by bad words. uncomment this!
 #master_words_set_df[master_words_set_df.bad_word==1].head()
 
 
-# In[15]:
+# In[16]:
 
 ## PARTS OF SPEECH ANALYSIS ##
 pos_dict = dict(pos_tags)
@@ -167,19 +167,19 @@ POS_MAP_DICT = {'CC': ' conjunction, coordinating',
                 'WRB': ' Wh-adverb'}
 
 
-# In[16]:
+# In[17]:
 
 master_words_set_df['pos_map'] = master_words_set_df.pos.apply(lambda x: POS_MAP_DICT[x] if x in POS_MAP_DICT else None)
 
 
-# In[17]:
+# In[18]:
 
 # get a dataframe with the counts of each part of speech
 pos_count_df = master_words_set_df.groupby(['pos_map'])                                    .agg({'pos_map':len})                                    .rename(columns={'pos_map':'pos_count'})                                    .sort('pos_count', ascending=False)
 pos_count_df.head()
 
 
-# In[18]:
+# In[19]:
 
 ## MESSAGE-BASED ANALYSIS. ##
 # information about the messages, their length, is_read, etc.
@@ -195,48 +195,48 @@ def getHumanReadableDate(unix_timestamp):
     return datetime.datetime.fromtimestamp(int(unix_timestamp)).strftime('%Y-%m-%d')
 
 
-# In[19]:
+# In[20]:
 
 # prepend a "1" to all date timestamps to make it a unix timestamp.
 # doesn't seem to yield correct results always, though.
 message_df['date'] = message_df.date.apply(lambda x: '1'+str(x))
 
 
-# In[20]:
+# In[21]:
 
 message_df['datetime_readable'] = message_df.date.apply(getHumanReadableDateTime).astype('datetime64[ns]')
 message_df['date_readable'] = message_df.date.apply(getHumanReadableDate).astype('datetime64')
 
 
-# In[3]:
+# In[22]:
 
 message_df.head()
 
 
-# In[22]:
+# In[23]:
 
 # create a dataframe that counts the number of texts sent per day
 texts_per_day_df = message_df.groupby(['date_readable'])                             .agg({'text':len})                             .rename(columns={'text':'count_of_texts'})
 
 
-# In[23]:
+# In[24]:
 
 texts_per_day_df.plot(kind='line', figsize=(15,10))
 
 
-# In[26]:
+# In[25]:
 
 # Sent Versus Unsent. you sent is is_sent=1, you received is is_sent=0
 pd.DataFrame(message_df.is_sent.value_counts(), columns=['count_of_messages'])
 
 
-# In[28]:
+# In[26]:
 
 # Get the Number of Words in Each Text Message
 message_df['message_length'] = message_df.text.apply(lambda x: len(re.findall(r"[\w']+", x)) if x is not None else 0)
 
 
-# In[32]:
+# In[27]:
 
 # AVERAGE MESSAGE LENGTHS
 sent_msg_length_mean = message_df[message_df.is_sent==1].message_length.mean()
@@ -245,7 +245,7 @@ print "The average length of messages I sent was {}".format(sent_msg_length_mean
 print "The average length of messages I received was {}".format(received_msg_length_mean)
 
 
-# In[65]:
+# In[28]:
 
 ## Fields I found were useless: ##
 # country. message_df.country.unique(). array([None], dtype=object)
@@ -256,4 +256,9 @@ print "The average length of messages I received was {}".format(received_msg_len
 ## Fields that were useful ##
     # text. the message content from the text message.
     # group_title. if you use groups, this is the assigned title of the group.
+
+
+# In[ ]:
+
+
 
