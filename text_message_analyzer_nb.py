@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[10]:
+# In[29]:
 
 import sqlite3
 import pandas as pd
@@ -40,7 +40,7 @@ def getMessageDF():
 message_df = getMessageDF()
 
 
-# In[11]:
+# In[30]:
 
 ## WRANGLE THE DATA AND CATEGORIZE IT ##
 
@@ -53,7 +53,7 @@ def  getTokensAndPOS():
         get the tokens and the parts of speech of each word'''
     tokens = nltk.word_tokenize(ALL_MESSAGES_STR)
     #TODO: fix count of tokens.
-    pos_tags = nltk.pos_tag(tokens[:1000])
+    pos_tags = nltk.pos_tag(tokens)
 
     return tokens, pos_tags
 
@@ -83,7 +83,7 @@ master_words_set_df = pd.DataFrame(master_words_tuple,columns=['word','count_tim
 master_words_set_df['pct_of_total'] = (master_words_set_df.count_times / len(master_words_set_df)) * 100
 
 
-# In[12]:
+# In[31]:
 
 ### GENERAL DATASET INFO ###
 print "Total text messages in dataset: {}".format(len(message_df.text))
